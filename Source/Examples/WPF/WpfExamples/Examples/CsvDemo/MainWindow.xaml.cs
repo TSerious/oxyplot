@@ -79,7 +79,7 @@ namespace CsvDemo
                 switch (ext)
                 {
                     case ".png":
-                        plot1.SaveBitmap(dlg.FileName, 0, 0, OxyColors.Automatic);
+                        plot1.SaveBitmap(dlg.FileName, (int)plot1.ActualWidth, (int)plot1.ActualHeight);
                         break;
                     case ".svg":
                         var rc = new CanvasRenderContext(new Canvas());
