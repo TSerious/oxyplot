@@ -10,6 +10,8 @@
 namespace OxyPlot
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// Provides functionality to build arrays.
@@ -103,6 +105,88 @@ namespace OxyPlot
                     array[i, j] = value;
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns evenly spaced values within a given interval.
+        /// </summary>
+        /// <param name="start">Start of interval.</param>
+        /// <param name="count">The number of sequential values to generate.</param>
+        /// <returns>IEnumerable of evenly spaced values.</returns>
+        public static IEnumerable<double> Arange(double start, int count)
+        {
+            return Enumerable.Range((int)start, count).Select(v => (double)v);
+        }
+
+        /// <summary>
+        /// Raises the elements of an array by a specified power.
+        /// </summary>
+        /// <param name="exponents">An array of double-precision floating-point numbers to be raised to a power.</param>
+        /// <param name="baseValue">A double-precision floating-point number that specifies a power.</param>
+        /// <returns>IEnumerable of raised values.</returns>
+        public static IEnumerable<double> Power(IEnumerable<double> exponents, double baseValue = 10.0d)
+        {
+            return exponents.Select(v => Math.Pow(baseValue, v));
+        }
+
+        /// <summary>
+        /// Returns an array of evenly spaced numbers over a specified interval.
+        /// </summary>
+        /// <param name="start">The starting value of the sequence.</param>
+        /// <param name="stop">The end value of the sequence, unless endpoint is set to False. In that case, the sequence consists of all but the last of num + 1 evenly spaced samples, so that stop is excluded. Note that the step size changes when endpoint is False.</param>
+        /// <param name="num">Number of samples to generate. Must be non-negative.</param>
+        /// <param name="endpoint">If True, stop is the last sample. Otherwise, it is not included. Default is True.</param>
+        /// <returns>IEnumerable of evenly spaced numbers.</returns>
+        public static IEnumerable<double> LinSpace(double start, double stop, int num, bool endpoint = true)
+        {
+            var result = new List<double>();
+            if (num <= 0)
+            {
+                return result;
+            }
+
+            if (endpoint)
+            {
+                if (num == 1)
+                {
+                    return new List<double>() { start };
+                }
+
+                var step = (stop - start) / ((double)num - 1.0d);
+                result = Arange(0, num).Select(v => (v * step) + start).ToList();
+            }
+            else
+            {
+                var step = (stop - start) / (double)num;
+                result = Arange(0, num).Select(v => (v * step) + start).ToList();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Returns an array of logarithmic spaced numbers over a specified interval.
+        /// </summary>
+        /// <param name="start">The starting value of the sequence.</param>
+        /// <param name="stop">The end value of the sequence, unless endpoint is set to False. In that case, the sequence consists of all but the last of num + 1 evenly spaced samples, so that stop is excluded. Note that the step size changes when endpoint is False.</param>
+        /// <param name="num">Number of samples to generate. Must be non-negative.</param>
+        /// <param name="endpoint">If True, stop is the last sample. Otherwise, it is not included. Default is True.</param>
+        /// <param name="numericBase">The base of the logarithmic spacing. Default is 10.</param>
+        /// <returns>IEnumerable of logarithmic spaced numbers.</returns>
+        public static IEnumerable<double> LogSpace(double start, double stop, int num, bool endpoint = true, double numericBase = 10.0d)
+        {
+            var y = LinSpace(start, stop, num: num, endpoint: endpoint);
+            return Power(y, numericBase);
+        }
+
+        public static IEnumerable<double> GeomSpace(double start, double stop, int num, bool endpoint = true, double numericBase = 10.0d)
+        {            
+            if((start == 0) || (stop == 0))
+                return new double[0];
+
+            double log_start = Math.Log10(start);
+            double log_stop = Math.Log10(stop);
+            return LogSpace(log_start, log_stop, num, endpoint, numericBase);
         }
     }
 }

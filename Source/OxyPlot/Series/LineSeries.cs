@@ -59,6 +59,11 @@ namespace OxyPlot.Series
         private List<DataPoint> smoothedPoints;
 
         /// <summary>
+        /// The strategy for decimating the points when zooming in and out on the x axis
+        /// </summary>
+        private Decimator.CountDecimateStrategy xAxisMaxPointsDecimation;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref = "LineSeries" /> class.
         /// </summary>
         public LineSeries()
@@ -78,6 +83,9 @@ namespace OxyPlot.Series
             this.MarkerType = MarkerType.None;
 
             this.MinimumSegmentLength = 2;
+            this.StepwiseDecimatorStep = 0;
+            this.XaxisMaxPointsDecimation = OxyPlot.Decimator.CountDecimateStrategy.None;
+            this.XaxisMaxPointsDecimationPointsCount = 100;
 
             this.CanTrackerInterpolatePoints = true;
             this.LabelMargin = 6;
@@ -121,6 +129,46 @@ namespace OxyPlot.Series
         /// </value>
         /// <remarks>The decimator can be used to improve the performance of the rendering. See the example.</remarks>
         public Action<List<ScreenPoint>, List<ScreenPoint>> Decimator { get; set; }
+
+        /// <summary>
+        /// Gets or sets a stepwise decimator. Tha first and last point will always be used but in between only a point at each <see cref="StepwiseDecimatorStep"/> will be used.
+        /// </summary>
+        /// <value>
+        /// The decimator action.
+        /// </value>
+        public Action<List<ScreenPoint>, List<ScreenPoint>, uint> StepwiseDecimator { get; set; }
+
+        /// <summary>
+        /// The stepwise decimatopr <see cref="StepwiseDecimator"/> needs a step.
+        /// </summary>
+        /// /// <value>
+        /// The decimator step.
+        /// </value>
+        public uint StepwiseDecimatorStep { get; set; }
+
+        /// <summary>
+        /// Enables a decimation depending on the zoomlevel of the x axis
+        /// </summary>
+        public Decimator.CountDecimateStrategy XaxisMaxPointsDecimation
+        {
+            get
+            {
+                return xAxisMaxPointsDecimation;
+            }
+            set
+            {
+                xAxisMaxPointsDecimation = value;
+                if (xAxisMaxPointsDecimation != OxyPlot.Decimator.CountDecimateStrategy.None)
+                    CountDecimate = OxyPlot.Decimator.CountDecimate;
+                else
+                    CountDecimate = null;
+            }
+        }
+
+        /// <summary>
+        /// This defines how many points are plotted if <see cref="XaxisMaxPointsDecimation"/> is true. Default is 100.
+        /// </summary>
+        public int XaxisMaxPointsDecimationPointsCount { get; set; }
 
         /// <summary>
         /// Gets or sets the label format string. The default is <c>null</c> (no labels).
@@ -237,6 +285,14 @@ namespace OxyPlot.Series
                 return this.MarkerFill.GetActualColor(this.defaultMarkerFill);
             }
         }
+
+        /// <summary>
+        /// Gets or sets a count decimator. Only <see cref="XaxisMaxPointsDecimationPointsCount"/> points will be shown. This is used if <see cref="XaxisMaxPointsDecimation"/> is set to true.
+        /// </summary>
+        /// <value>
+        /// The decimator action.
+        /// </value>
+        public Action<List<ScreenPoint>, List<ScreenPoint>, int, Decimator.CountDecimateStrategy, bool> CountDecimate { get; set; }
 
         /// <summary>
         /// Gets the actual line style.
@@ -493,8 +549,18 @@ namespace OxyPlot.Series
 					lastValidPoint = null;
 				}
 
-				if (this.Decimator != null)
-				{
+                if (this.CountDecimate != null && xAxisMaxPointsDecimation != OxyPlot.Decimator.CountDecimateStrategy.None)
+                {
+                    if (this.decimatorBuffer == null || decimatorBuffer.Capacity != XaxisMaxPointsDecimationPointsCount)
+                        this.decimatorBuffer = new List<ScreenPoint>(XaxisMaxPointsDecimationPointsCount);
+                    else
+                        this.decimatorBuffer.Clear();
+
+                    this.CountDecimate(this.contiguousScreenPointsBuffer, this.decimatorBuffer, XaxisMaxPointsDecimationPointsCount, xAxisMaxPointsDecimation, XAxis.IsLogarithmic());
+                    this.RenderLineAndMarkers(rc, clippingRect, this.decimatorBuffer);
+                }
+                else if (this.Decimator != null)
+                {
 					if (this.decimatorBuffer == null)
 					{
 						this.decimatorBuffer = new List<ScreenPoint>(this.contiguousScreenPointsBuffer.Count);
@@ -507,7 +573,21 @@ namespace OxyPlot.Series
 					this.Decimator(this.contiguousScreenPointsBuffer, this.decimatorBuffer);
 					this.RenderLineAndMarkers(rc, clippingRect, this.decimatorBuffer);
 				}
-				else
+                else if (this.StepwiseDecimator != null && this.StepwiseDecimatorStep > 0)
+                {
+                    if (this.decimatorBuffer == null)
+                    {
+                        this.decimatorBuffer = new List<ScreenPoint>(this.contiguousScreenPointsBuffer.Count);
+                    }
+                    else
+                    {
+                        this.decimatorBuffer.Clear();
+                    }
+
+                    this.StepwiseDecimator(this.contiguousScreenPointsBuffer, this.decimatorBuffer, this.StepwiseDecimatorStep);
+                    this.RenderLineAndMarkers(rc, clippingRect, this.decimatorBuffer);
+                }
+                else
 				{
 					this.RenderLineAndMarkers(rc, clippingRect, this.contiguousScreenPointsBuffer);
 				}

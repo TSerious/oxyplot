@@ -118,6 +118,30 @@ namespace OxyPlot
         }
 
         /// <summary>
+        /// Compares a <see cref="ScreenPoint" /> and a <see cref="ScreenPoint" />
+        /// and returns if they have the same x and y.
+        /// </summary>
+        /// <param name="p1">One point.</param>
+        /// <param name="p2">Another point.</param>
+        /// <returns>true if p1 and p2 are at the same position.</returns>
+        public static bool operator ==(ScreenPoint p1, ScreenPoint p2)
+        {
+            return p1.x == p2.x && p1.y == p2.y;
+        }
+
+        /// <summary>
+        /// Compares a <see cref="ScreenPoint" /> and a <see cref="ScreenPoint" />
+        /// and returns if they have the different x and y.
+        /// </summary>
+        /// <param name="p1">One point.</param>
+        /// <param name="p2">Another point.</param>
+        /// <returns>true if p1 and p2 are at different same positions.</returns>
+        public static bool operator !=(ScreenPoint p1, ScreenPoint p2)
+        {
+            return p1.x != p2.x && p1.y != p2.y;
+        }
+
+        /// <summary>
         /// Gets the distance to the specified point.
         /// </summary>
         /// <param name="point">The point.</param>

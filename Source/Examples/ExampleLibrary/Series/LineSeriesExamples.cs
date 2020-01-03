@@ -16,6 +16,7 @@ namespace ExampleLibrary
     using OxyPlot.Axes;
     using OxyPlot.Series;
     using OxyPlot.Legends;
+    using OxyPlot.Annotations;
 
     [Examples("LineSeries"), Tags("Series")]
     public class LineSeriesExamples
@@ -304,6 +305,192 @@ namespace ExampleLibrary
             return model;
         }
 
+        [Example("With X max points Decimator")]
+        public static PlotModel DefaultStyleCos()
+        {
+            var model = new PlotModel { Title = "LineSeries with 100000 points where a maximum of 50 points is shown" };
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left });
+            var lineSeries1 = CreateExampleCosLineSeries(100000);
+            lineSeries1.XaxisMaxPointsDecimationPointsCount = 50;
+            lineSeries1.XaxisMaxPointsDecimation = Decimator.CountDecimateStrategy.Linear;
+            lineSeries1.Title = "Cos with 100000 points";
+            lineSeries1.MarkerType = MarkerType.Cross;
+            lineSeries1.MarkerSize = 4;
+            lineSeries1.MarkerStroke = OxyColors.Black;
+            lineSeries1.MarkerFill = OxyColors.Black;
+            lineSeries1.KeyDown += LineSeriesLinearDecimationOnOff;
+            var rectangleAnnotation1 = new RectangleAnnotation()
+            {
+                Fill = OxyColor.FromAColor(0, OxyColors.White),
+                TextVerticalAlignment = VerticalAlignment.Bottom,
+                Text = "Click inside the area and hit 'f' to en/disable decimation."
+            };
+            model.Annotations.Add(rectangleAnnotation1);
+            model.Series.Add(lineSeries1);
+
+            return model;
+        }
+
+        [Example("With X max points Decimator but spiky curve")]
+        public static PlotModel DefaultStyleCosSpiky()
+        {
+            var model = new PlotModel { Title = "LineSeries with 100000 points and spikes where a maximum of 100 points is shown" };
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left });
+            var lineSeries1 = CreateExampleCosLineSeries(100000, Math.PI * 2, true);
+            lineSeries1.XaxisMaxPointsDecimationPointsCount = 100;
+            lineSeries1.XaxisMaxPointsDecimation = Decimator.CountDecimateStrategy.Linear;
+            lineSeries1.Title = "Cos with 100000 points";
+            lineSeries1.MarkerType = MarkerType.Cross;
+            lineSeries1.MarkerSize = 4;
+            lineSeries1.MarkerStroke = OxyColors.Black;
+            lineSeries1.MarkerFill = OxyColors.Black;
+            lineSeries1.KeyDown += LineSeriesLinearDecimationOnOff;
+            var rectangleAnnotation1 = new RectangleAnnotation()
+            {
+                Fill = OxyColor.FromAColor(0, OxyColors.White),
+                TextVerticalAlignment = VerticalAlignment.Bottom,
+                Text = "Click inside the area and hit 'f' to en/disable decimation."
+            };
+            model.Annotations.Add(rectangleAnnotation1);
+            model.Series.Add(lineSeries1);
+            
+            return model;
+        }
+
+        private static void LineSeriesLinearDecimationOnOff(object sender, OxyKeyEventArgs e)
+        {
+            if (e.Key == OxyKey.F && sender is LineSeries line)
+            {
+                if (line.XaxisMaxPointsDecimation == Decimator.CountDecimateStrategy.Linear)
+                    line.XaxisMaxPointsDecimation = Decimator.CountDecimateStrategy.None;
+                else
+                    line.XaxisMaxPointsDecimation = Decimator.CountDecimateStrategy.Linear;
+                line.PlotModel.InvalidatePlot(false);
+            }
+        }
+
+        [Example("With X max points Decimator but spiky curve and MinMaxSpikeDetection")]
+        public static PlotModel DefaultStyleCosSpikyMinMaxDetection()
+        {
+            var model = new PlotModel { Title = "LineSeries with 100000 points and spikes where a maximum of 50 points is shown and MinMaxSpikeDetection" };
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left });
+            var lineSeries1 = CreateExampleCosLineSeries(100000, Math.PI * 2, true);
+            lineSeries1.XaxisMaxPointsDecimationPointsCount = 50;
+            lineSeries1.XaxisMaxPointsDecimation = Decimator.CountDecimateStrategy.MinMaxSpikeDetection;
+            lineSeries1.Title = "Cos with 100000 points";
+            lineSeries1.MarkerType = MarkerType.Cross;
+            lineSeries1.MarkerSize = 4;
+            lineSeries1.MarkerStroke = OxyColors.Black;
+            lineSeries1.MarkerFill = OxyColors.Black;
+            lineSeries1.KeyDown += LineSeriesMinMaxDecimationOnOff;
+            var rectangleAnnotation1 = new RectangleAnnotation()
+            {
+                Fill = OxyColor.FromAColor(0, OxyColors.White),
+                TextVerticalAlignment = VerticalAlignment.Bottom,
+                Text = "Click inside the area and hit 'f' to en/disable decimation."
+            };
+            model.Annotations.Add(rectangleAnnotation1);
+            model.Series.Add(lineSeries1);
+
+            return model;
+        }
+
+        private static void LineSeriesMinMaxDecimationOnOff(object sender, OxyKeyEventArgs e)
+        {
+            if (e.Key == OxyKey.F && sender is LineSeries line)
+            {
+                if (line.XaxisMaxPointsDecimation == Decimator.CountDecimateStrategy.MinMaxSpikeDetection)
+                    line.XaxisMaxPointsDecimation = Decimator.CountDecimateStrategy.None;
+                else
+                    line.XaxisMaxPointsDecimation = Decimator.CountDecimateStrategy.MinMaxSpikeDetection;
+                line.PlotModel.InvalidatePlot(false);
+            }
+        }
+
+        [Example("With X max points Decimator on logaithmic axis")]
+        public static PlotModel DefaultStyleExp()
+        {
+            var model = new PlotModel { Title = "LineSeries where maximum 50 points are shown" };
+            model.Axes.Add(new LogarithmicAxis { Position = AxisPosition.Bottom });
+            model.Axes.Add(new LogarithmicAxis { Position = AxisPosition.Left });
+            var lineSeries1 = CreateExampleExpLineSeries(100000);
+            lineSeries1.XaxisMaxPointsDecimation = Decimator.CountDecimateStrategy.Linear;
+            lineSeries1.Title = "e with 100000 points";
+            lineSeries1.XaxisMaxPointsDecimationPointsCount = 50;
+            lineSeries1.MarkerType = MarkerType.Cross;
+            lineSeries1.MarkerSize = 4;
+            lineSeries1.MarkerStroke = OxyColors.Black;
+            lineSeries1.MarkerFill = OxyColors.Black;
+            lineSeries1.KeyDown += LineSeriesLinearDecimationOnOff;
+            var rectangleAnnotation1 = new RectangleAnnotation()
+            {
+                Fill = OxyColor.FromAColor(0, OxyColors.White),
+                TextVerticalAlignment = VerticalAlignment.Bottom,
+                Text = "Click inside the area and hit 'f' to en/disable decimation."
+            };
+            model.Annotations.Add(rectangleAnnotation1);
+            model.Series.Add(lineSeries1);
+
+            return model;
+        }
+
+        [Example("With X max points Decimator on logaithmic axis with spiky curve")]
+        public static PlotModel DefaultStyleExpSpiky()
+        {
+            var model = new PlotModel { Title = "LineSeries where maximum 100 points are shown" };
+            model.Axes.Add(new LogarithmicAxis { Position = AxisPosition.Bottom });
+            model.Axes.Add(new LogarithmicAxis { Position = AxisPosition.Left });
+            var lineSeries1 = CreateExampleExpLineSeries(10000);
+            lineSeries1.XaxisMaxPointsDecimation = Decimator.CountDecimateStrategy.Linear;
+            lineSeries1.Title = "e with 100000 points";
+            lineSeries1.XaxisMaxPointsDecimationPointsCount = 100;
+            lineSeries1.MarkerType = MarkerType.Cross;
+            lineSeries1.MarkerSize = 4;
+            lineSeries1.MarkerStroke = OxyColors.Black;
+            lineSeries1.MarkerFill = OxyColors.Black;
+            lineSeries1.KeyDown += LineSeriesLinearDecimationOnOff;
+            var rectangleAnnotation1 = new RectangleAnnotation()
+            {
+                Fill = OxyColor.FromAColor(0, OxyColors.White),
+                TextVerticalAlignment = VerticalAlignment.Bottom,
+                Text = "Click inside the area and hit 'f' to en/disable decimation."
+            };
+            model.Annotations.Add(rectangleAnnotation1);
+            model.Series.Add(lineSeries1);
+
+            return model;
+        }
+
+        [Example("With X max points Decimator on logaithmic axis with spiky curve and MinMaxSpikeDetection")]
+        public static PlotModel DefaultStyleExpSpikyMinMaxSpikeDetection()
+        {
+            var model = new PlotModel { Title = "LineSeries where maximum 50 points are shown" };
+            model.Axes.Add(new LogarithmicAxis { Position = AxisPosition.Bottom });
+            model.Axes.Add(new LogarithmicAxis { Position = AxisPosition.Left });
+            var lineSeries1 = CreateExampleExpLineSeries(100000);
+            lineSeries1.XaxisMaxPointsDecimation = Decimator.CountDecimateStrategy.MinMaxSpikeDetection;
+            lineSeries1.Title = "e with 100000 points";
+            lineSeries1.XaxisMaxPointsDecimationPointsCount = 50;
+            lineSeries1.MarkerType = MarkerType.Cross;
+            lineSeries1.MarkerSize = 4;
+            lineSeries1.MarkerStroke = OxyColors.Black;
+            lineSeries1.MarkerFill = OxyColors.Black;
+            lineSeries1.KeyDown += LineSeriesMinMaxDecimationOnOff;
+            var rectangleAnnotation1 = new RectangleAnnotation()
+            {
+                Fill = OxyColor.FromAColor(0, OxyColors.White),
+                TextVerticalAlignment = VerticalAlignment.Bottom,
+                Text = "Click inside the area and hit 'f' to en/disable decimation."
+            };
+            model.Annotations.Add(rectangleAnnotation1);
+            model.Series.Add(lineSeries1);
+
+            return model;
+        }
+
         [Example("Canonical spline interpolation")]
         public static PlotModel CanonicalSplineInterpolation()
         {
@@ -449,6 +636,85 @@ namespace ExampleLibrary
             {
                 lineSeries1.Points.Add(new DataPoint(x, y));
                 y += r.Next(-5, 5);
+            }
+
+            return lineSeries1;
+        }
+
+        private static LineSeries CreateExampleCosLineSeries(int points = 1000, double end = 2 * Math.PI, bool withSpikes = false)
+        {
+            var lineSeries1 = new LineSeries();
+            double step = end / (double)points;
+            double x = 0;
+
+            if (!withSpikes)
+            {
+                for (int i = 0; i <= points; i++)
+                {
+                    lineSeries1.Points.Add(new DataPoint(x, Math.Cos(x)));
+                    x += step;
+                }
+            }
+            else
+            {
+                double spikeOffset;
+                int spikeCount = 0;
+                double spkiePossibility = 1 - (1.0 / (double)(points / 10));
+                for (int i = 0; i <= points; i++)
+                {
+                    if (Randomizer.NextDouble() > spkiePossibility)
+                    {
+                        if (Randomizer.NextDouble() >= 0.5)
+                            spikeOffset = Randomizer.NextDouble();
+                        else
+                            spikeOffset = Randomizer.NextDouble() * -1;
+
+                        spikeCount++;
+                        lineSeries1.Points.Add(new DataPoint(x, Math.Cos(x) + spikeOffset));
+                        x += step;
+                    }
+                    else
+                    {
+                        lineSeries1.Points.Add(new DataPoint(x, Math.Cos(x)));
+                        x += step;
+                    }
+                }
+                System.Diagnostics.Debug.WriteLine("SpikeCount = " + spikeCount);
+            }
+
+            return lineSeries1;
+        }
+
+        private static LineSeries CreateExampleExpLineSeries(int points = 1000, bool withSpikes = false)
+        {
+            var lineSeries1 = new LineSeries();
+            if (!withSpikes)
+            {
+                double spikeOffset;
+                int spikeCount = 0;
+                double spkiePossibility = 1 - (1.0 / (double)(points / 10));
+                for (int i = 1; i <= points + 1; i++)
+                {
+                    if (Randomizer.NextDouble() > spkiePossibility)
+                    {
+                        spikeOffset = Math.Exp(Randomizer.NextDouble() / (double)points);
+                        if (Randomizer.NextDouble() < 0.5)
+                            spikeOffset *= -1;
+
+                        spikeCount++;
+                        lineSeries1.Points.Add(new DataPoint(i, Math.Exp((double)i / (double)points) + spikeOffset));
+                    }
+                    else
+                    {
+                        lineSeries1.Points.Add(new DataPoint(i, Math.Exp((double)i / (double)points)));
+                    }
+
+
+                }
+            }
+            else
+            {
+
             }
 
             return lineSeries1;

@@ -14,8 +14,11 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <SignAssembly>True</SignAssembly>
         <AssemblyOriginatorKeyFile>OxyPlot.snk</AssemblyOriginatorKeyFile>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
         <NoWarn>618</NoWarn>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard1.0|AnyCPU'">
+      <WarningsAsErrors />
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\..\Icons\OxyPlot_128.png" Pack="true" PackagePath="\" />
